@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: ---
+  This template creates the iam policies and roles.
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+
+Resources:
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: "EC2S3InstanceProfile"
+      Roles:
+        - !Ref EC2S3Role
+
+  EC2S3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-ec2s3role
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Action": "sts:AssumeRole",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "ec2.amazonaws.com"
+                }
+            }]
+        }
+      Policies:
+        - PolicyName: !Sub ${EnvironmentName}-ec2s3policy
+          PolicyDocument: !Sub |
+            {
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Action": [
+                      "s3:*"
+                    ],
+                    "Resource": "*"
+                }]
+            }
+
+Outputs:
+  EC2InstanceProfile:
+    Description: A reference to the ec2s3instance profile
+    Value: !Ref EC2InstanceProfile
+    Export:
+      Name: ref-ec2s3-instance-profile

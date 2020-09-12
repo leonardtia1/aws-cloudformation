@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  myec2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      KeyName: jenkins-key
+      ImageId: ami-00514a528eadbc95b
+      SecurityGroupIds:
+        - sg-044f8499e84ff92ac
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #! /bin/bash 
+          # user data
+          yum update -y
+          yum install -y httpd
+          service httpd start
+          chkconfig httpd on
+      
+          cd /var/www/html/
+ 
+          # liyeplimal website
+          wget https://linux-devops-course.s3.amazonaws.com/WEB+SIDE+HTML/www.liyeplimal.net.zip
+          unzip www.liyeplimal.net.zip
+          rm -rf www.liyeplimal.net.zip
+          cp -R www.liyeplimal.net/* .
+          rm -rf www.liyeplimal.net
+        
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

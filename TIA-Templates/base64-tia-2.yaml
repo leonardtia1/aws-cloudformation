@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  This template will be used to launch 
+  EC2 instance and install the webserver.
+
+Parameters: 
+  InstanceTypeParameter:
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro. 
+    Type: String
+    Default: t2.micro
+    AllowedValues: 
+      - t2.micro
+      - m1.small
+      - m1.large
+      - t2.large
+      - t2.2xlarge
+  ImageId:
+    Description: AMI to use as default
+    Default: "ami-00514a528eadbc95b" 
+    Type: String
+  VpcId:
+    Description: The VPC to use by the SG
+    Type: List<AWS::EC2::VPC::Id>
+  InstanceKeyPair: 
+    Description: Amazon EC2 Key Pair
+    Type: "AWS::EC2::KeyPair::KeyName"
+  SecurityGroupIds:
+    Description: Amazon EC2 SG
+    Type: "List<AWS::EC2::SecurityGroup::Id>"
+  VpcId:
+    Description: The VPC to use by the SG
+    Type: String
+
+Resources:
+  myec2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      KeyName: !Ref InstanceKeyPair
+      ImageId: !Ref ImageId
+      SecurityGroupIds: !Ref SecurityGroupIds
+      InstanceType: !Ref InstanceTypeParameter
+      UserData:
+        Fn::Base64: !Sub |
+          #! /bin/bash 
+          # user data
+          yum update -y
+          yum install -y httpd
+          service httpd start
+          chkconfig httpd on
+      
+          cd /var/www/html/
+ 
+          # liyeplimal website
+          wget https://linux-devops-course.s3.amazonaws.com/WEB+SIDE+HTML/www.liyeplimal.net.zip
+          unzip www.liyeplimal.net.zip
+          rm -rf www.liyeplimal.net.zip
+          cp -R www.liyeplimal.net/* .
+          rm -rf www.liyeplimal.net
+        
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

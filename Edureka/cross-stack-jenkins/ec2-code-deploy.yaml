@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: This stack creates a EC2 Instance.
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+  KeyPair:
+    Description: "Name of an existing EC2 KeyPair to enable SSH/RDP access to the instance"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+  EC2InstanceSize:
+    Description: "Size of the EC2 instance"
+    Type: String
+    Default: "t2.micro"
+  EC2ImageId:
+    Description: "ImageId of the EC2 Instance in this Region"
+    Type: String
+    Default: "ami-0e9089763828757e1"
+
+Resources:
+  CodeDeployAgentInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyPair
+      ImageId: !Ref EC2ImageId
+      InstanceType: !Ref EC2InstanceSize
+      Monitoring: false
+      SubnetId: !ImportValue ref-public-subnet-az2-id
+      SecurityGroupIds:
+        - !ImportValue ref-security-group-id
+      IamInstanceProfile: !ImportValue ref-ec2s3-instance-profile
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum -y update
+          yum install -y ruby
+          yum install -y aws-cli
+          yum install wget
+          cd /home/ec2-user
+          wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+          chmod +x ./install
+          sudo ./install auto
+          service codedeploy-agent status
+          yum install -y java-1.8*
+          update-alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+          java -version
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-instance
+        - Key: Project
+          Value: !Sub ${EnvironmentName}
+
+  Inbound8080Rule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !ImportValue ref-security-group-id
+      IpProtocol: tcp
+      FromPort: "5000"
+      ToPort: "5000"
+      CidrIp: !ImportValue ref-security-group-ingress-cidr
+      Description: "Allow ingress on port 8080"
+
+Outputs:
+  CodeDeployAgentInstance:
+    Description: public IP address of EC2 instance
+    Value: !GetAtt CodeDeployAgentInstance.PublicIp

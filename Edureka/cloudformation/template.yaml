@@ -1,0 +1,45 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  This template will be used to launch 
+  EC2 instance and install the webserver.
+
+Parameters: 
+  InstanceTypeParameter:
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro. 
+    Type: String
+    Default: t2.micro
+    AllowedValues: 
+      - t2.micro
+      - m1.small
+      - m1.large
+  ImageId:
+    Description: AMI to use as default
+    Default: "ami-00514a528eadbc95b" 
+    Type: String
+  VpcId:
+    Description: The VPC to use by the SG
+    Type: String
+  
+Resources:
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: !Ref ImageId
+      KeyName: "jenkins-key"
+    SecurityGroupIds:
+      - !GetAtt SecurityGroup.GroupId
+      
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Open port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80  
+
+  

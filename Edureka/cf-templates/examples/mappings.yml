@@ -1,0 +1,28 @@
+# This is not a complete template.
+# This is just a snippet to show syntax of mappings
+# Example of Mappings
+AWSTemplateFormatVersion: "2010-09-09"
+Mappings:
+  RegionMap:
+    us-east-1:
+      "AMALINUX1": "ami-0080e4c5bc078760e"
+      "AMALINUX2": "ami-01e3b8c3a51e88954"
+    us-west-1:
+      "AMALINUX1": "ami-0ec6517f6edbf8044"
+      "AMALINUX2": "ami-0a16c82eb0cc3aad8"
+    ap-south-1:
+      "AMALINUX1": "ami-0ad42f4f66f6c1cc9"
+      "AMALINUX2": "ami-09243352e7fc54770"
+Resources:
+  ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMALINUX1]
+      InstanceType: t2.micro
+      SubnetId: !Ref pubsub
+      KeyName: !Ref keypair
+      SecurityGroupIds:
+        - !Ref EC2SG
+    Tags:
+      - Key: Name
+        Value: !Join ["-", [!Ref "AWS::StackName", "ec2Instance", "php", "app"]]

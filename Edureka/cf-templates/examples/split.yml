@@ -1,0 +1,13 @@
+#
+#
+# !Select [1, !Split [",", !ImportValue AccountSubnetIds]]
+#
+#
+#
+#
+# {
+#  "Fn::Select":
+#    ["2", { "Fn::Split": [",", { "Fn::ImportValue": "AccountSubnetIds" }] }],
+# }
+#
+#

@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: ---
+  This template deploys a VPC, with a pair of public and private subnets spread
+  across two Availabilty Zones.
+
+  It then deploys a EC2 Windows Server 2016 instance with Instance role to access S3
+  and RDS.
+
+  Finally, it deploys a RDS database instance running Microsoft SQL server Express
+  edition, that is publicly accessible.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Template Stack
+        Parameters:
+          - CFNTemplatesS3Bucket
+      - Label:
+          default: VPC
+        Parameters:
+          - VpcCIDR
+          - AvailabilityZone1
+          - PublicSubnet1CIDR
+          - PrivateSubnet1CIDR
+          - AvailabilityZone2
+          - PublicSubnet2CIDR
+          - PrivateSubnet2CIDR
+          - SecurityGroupIngressCIDR
+      - Label:
+          default: EC2 Instance
+        Parameters:
+          - EC2ImageId
+          - EC2InstanceSize
+          - KeyPair
+    ParameterLabels:
+      VpcCIDR:
+        default: VPC CIDR
+      AvailabilityZone1:
+        default: Availability Zone 1
+      PublicSubnet1CIDR:
+        default: Public Subnet 1
+      PrivateSubnet1CIDR:
+        default: Private Subnet 1
+      AvailabilityZone2:
+        default: Availability Zone 2
+      PublicSubnet2CIDR:
+        default: Public Subnet 2
+      PrivateSubnet2CIDR:
+        default: Private Subnet 2
+      SecurityGroupIngressCIDR:
+        default: Security Groups Ingress CIDR
+      EC2ImageId:
+        default: Image Id
+      EC2InstanceSize:
+        default: Instance Size
+      KeyPair:
+        default: Key Pair
+      CFNTemplatesS3Bucket:
+        default: Cloudformation Templates Stack
+
+Parameters:
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.250.0.0/16
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 10.250.1.0/24
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 10.250.2.0/24
+  PrivateSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+    Type: String
+    Default: 10.250.3.0/24
+  PrivateSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
+    Type: String
+    Default: 10.250.4.0/24
+  AvailabilityZone1:
+    Description: Please select an Availability Zone
+    Type: "AWS::EC2::AvailabilityZone::Name"
+    Default: "us-east-1a"
+  AvailabilityZone2:
+    Description: Please select a second Availability Zone
+    Type: "AWS::EC2::AvailabilityZone::Name"
+    Default: "us-east-1b"
+  SecurityGroupIngressCIDR:
+    Description: Please enter the CIDR block of the IP from which to allow access to EC2 and RDS.
+    Type: String
+  EC2ImageId:
+    Description: "ImageId of the EC2 Instance in this Region"
+    Type: String
+    Default: "ami-0e9089763828757e1"
+  EC2InstanceSize:
+    Description: "Size of the EC2 instance"
+    Type: String
+    Default: "t2.micro"
+  KeyPair:
+    Description: "Name of an existing EC2 KeyPair to enable SSH/RDP access to the instance"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+  CFNTemplatesS3Bucket:
+    Description: Name of the S3 bucket where cloud formation templates are stored.
+    Type: String
+
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${CFNTemplatesS3Bucket}/vpc.yaml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        VpcCIDR: !Ref VpcCIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
+        AvailabilityZone1: !Ref AvailabilityZone1
+        AvailabilityZone2: !Ref AvailabilityZone2
+
+  SecurityGroups:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${CFNTemplatesS3Bucket}/security-groups.yaml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        VPC: !GetAtt VPC.Outputs.VPC
+        IngressCIDR: !Ref SecurityGroupIngressCIDR
+
+  EC2Instance:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://s3.amazonaws.com/${CFNTemplatesS3Bucket}/ec2.yaml
+      Parameters:
+        EnvironmentName: !Ref AWS::StackName
+        SubnetId: !GetAtt VPC.Outputs.PublicSubnet1
+        SecurityGroupId: !GetAtt SecurityGroups.Outputs.AppserverSecurityGroup
+        KeyPair: !Ref KeyPair
+        EC2ImageId: !Ref EC2ImageId
+        EC2InstanceSize: !Ref EC2InstanceSize

@@ -1,0 +1,12 @@
+# Pseudo parameters are parameters that are predefined by AWS Cloudformation.
+# You do not declare them in your template.
+# User them the same way as a parameter, as the argument for the Ref function.
+
+# AWS::Region
+# AWS::AccountId
+# AWS::NotificationARNs
+# AWS::NoValue
+# AWS::Partition
+# AWS::StackId
+# AWS::StackName
+# AWS::URLSuffix

@@ -1,0 +1,14 @@
+# Example of Select snippet
+Resources:
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs ""] # !Select [index, listofobjects]; !GetAZs region-name
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+# Json syntax
+# {"Fn::GetAZs": "us-east-1"}

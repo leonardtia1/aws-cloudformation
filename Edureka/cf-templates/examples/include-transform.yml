@@ -1,0 +1,14 @@
+# These are snippets. not full template.
+{
+   "Transform" : {
+       "Name" : "AWS::Include",
+       "Parameters" : {
+           "Location" : "s3://MyAmazonS3BucketName/MyFileName.json"
+        }
+    }
+}
+
+Transform:
+  Name: 'AWS::Include'
+  Parameters:
+    Location: 's3://MyAmazonS3BucketName/MyFileName.yaml'

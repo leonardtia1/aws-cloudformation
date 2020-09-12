@@ -1,0 +1,6 @@
+# { “Fn::Cidr”: [ipBlock, count, cidrBits] }
+
+# !Cidr [ipBlock, count, cidrBits]
+
+# !Cidr [10.99.0.0/16, 3, 8] ->  [10.99.11.0/24, 10.99.154.0/24, 10.99.2.0/24]
+
