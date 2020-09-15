@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  In the InstanceType property, the template nests two Fn::If intrinsic functions to determine which instance type to use. If the CreateProdResources condition is true, the instance type is c1.xlarge. If the condition is false, the CreateDevResources condition is evaluated. If the CreateDevResources condition is true, the instance type is t2.micro or else the instance type is t2.small.
+
+  In addition to the instance type, the production environment creates and attaches an Amazon EC2 volume to the instance. The MountPoint and NewVolume resources are associated with the CreateProdResources condition so that the resources are created only if the condition evaluates to true. 
+
+Mappings: 
+  RegionMap: 
+    us-east-2: 
+      AMI: "ami-04fcd96153cb57194"
+      TestAz: "us-east-2a"
+    us-east-1: 
+      AMI: "ami-0ff8a91507f77f867"
+      TestAz: "us-east-1a"
+    us-west-1: 
+      AMI: "ami-0bdb828fd58c52235"
+      TestAz: "us-west-1a"
+    us-west-2: 
+      AMI: "ami-a0cfeed8"
+      TestAz: "us-west-2a"
+    eu-west-1: 
+      AMI: "ami-047bb4163c506cd98"
+      TestAz: "eu-west-1a"
+    sa-east-1: 
+      AMI: "ami-07b14488da8ea02a0"
+      TestAz: "sa-east-1a"
+    ap-southeast-1: 
+      AMI: "ami-08569b978cc4dfa10"
+      TestAz: "ap-southeast-1a"
+    ap-southeast-2: 
+      AMI: "ami-09b42976632b27e9b"
+      TestAz: "ap-southeast-2a"
+    ap-northeast-1: 
+      AMI: "ami-06cd52961ce9f0d85"
+      TestAz: "ap-northeast-1a"
+
+Parameters:
+  EnvType:
+    Description: Environment type.
+    Default: test
+    Type: String
+    AllowedValues: [prod, dev, test]
+    ConstraintDescription: must specify prod, dev, or test.
+  
+Conditions:
+  CreateProdResources: !Equals [!Ref EnvType, prod]
+  CreateDevResources: !Equals [!Ref EnvType, "dev"]
+
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: !If [CreateProdResources, c1.xlarge, !If [CreateDevResources, t2.micro, t2.small]]    
+  MountPoint:
+    Type: "AWS::EC2::VolumeAttachment"
+    Condition: CreateProdResources
+    Properties:
+      InstanceId: !Ref EC2Instance
+      VolumeId: !Ref NewVolume
+      Device: /dev/sdh
+  NewVolume:
+    Type: "AWS::EC2::Volume"
+    Condition: CreateProdResources
+    Properties:
+      Size: 15
+      AvailabilityZone: !GetAtt EC2Instance.AvailabilityZone
