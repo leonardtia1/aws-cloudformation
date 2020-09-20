@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  myec2Instance:
+    Type: "AWS::EC2::Instance"
+    Metadata:
+      "AWS::CloudFormation::Init":
+        config:
+          packages:
+            yum:
+              httpd: []
+              wget: []
+          commands:
+            StratApache:
+              command: service httpd start
+            Downloadfies:
+               command: "cd /var/www/html/ && wget https://linux-devops-course.s3.amazonaws.com/WEB+SIDE+HTML/www.liyeplimal.net.zip"                           
+            Unzip:
+               command: "cd /var/www/html/ && unzip www.liyeplimal.net.zip"      
+            CopyFiles:               
+              command: "cd /var/www/html/ && cp -R www.liyeplimal.net/* ."       
+          
+    Properties:
+      KeyName: cfn-key-1
+      ImageId: ami-0cd3dfa4e37921605
+      SecurityGroupIds:
+        - default
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource myec2Instance --region ${AWS::Region}
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource myec2Instance --region ${AWS::Region}
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT5M

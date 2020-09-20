@@ -1,0 +1,123 @@
+#Build notifications sample for CodeBuild
+https://docs.aws.amazon.com/codebuild/latest/userguide/sample-build-notifications.html
+
+# state change notification
+{
+  "source": [ 
+    "aws.codebuild"
+  ], 
+  "detail-type": [
+    "CodeBuild Build State Change"
+  ],
+  "detail": {
+    "build-status": [
+      "IN_PROGRESS",
+      "SUCCEEDED", 
+      "FAILED",
+      "STOPPED" 
+    ],
+    "project-name": [
+      "my-demo-project-1",
+      "my-demo-project-2"
+    ]
+  }  
+}
+
+# -------------------------------------------------------------------------
+
+{
+  "source": [ 
+    "aws.codebuild"
+  ], 
+  "detail-type": [
+    "CodeBuild Build State Change"
+  ],
+  "detail": {
+    "build-status": [
+      "IN_PROGRESS",
+      "SUCCEEDED", 
+      "FAILED",
+      "STOPPED" 
+    ],
+    "project-name": [
+      "demo5"
+    ]
+  }  
+}
+
+#  Input Path
+{"build-id":"$.detail.build-id","project-name":"$.detail.project-name","build-status":"$.detail.build-status"}
+
+# Input Template
+"Build '<build-id>' for build project '<project-name>' has reached the build status of '<build-status>'."
+
+# -------------------------------------------------------------------------
+# phase change notification
+{
+  "source": [ 
+    "aws.codebuild"
+  ], 
+  "detail-type": [
+    "CodeBuild Build Phase Change" 
+  ],
+  "detail": {
+    "completed-phase": [
+      "SUBMITTED",
+      "PROVISIONING",
+      "DOWNLOAD_SOURCE",
+      "INSTALL",
+      "PRE_BUILD",
+      "BUILD",
+      "POST_BUILD",
+      "UPLOAD_ARTIFACTS",
+      "FINALIZING"
+    ],
+    "completed-phase-status": [
+      "TIMED_OUT",
+      "STOPPED",
+      "FAILED", 
+      "SUCCEEDED",
+      "FAULT",
+      "CLIENT_ERROR"
+    ],
+    "project-name": [
+      "my-demo-project-1",
+      "my-demo-project-2"
+    ]
+  }  
+}
+
+# -------------------------------------------------------------------------
+
+{
+  "source": [ 
+    "aws.codebuild"
+  ], 
+  "detail-type": [
+    "CodeBuild Build Phase Change" 
+  ],
+  "detail": {
+    "completed-phase": [
+      "SUBMITTED",
+      "PROVISIONING",
+      "DOWNLOAD_SOURCE",
+      "INSTALL",
+      "PRE_BUILD",
+      "BUILD",
+      "POST_BUILD",
+      "UPLOAD_ARTIFACTS",
+      "FINALIZING"
+    ],
+    "completed-phase-status": [
+      "TIMED_OUT",
+      "STOPPED",
+      "FAILED", 
+      "SUCCEEDED",
+      "FAULT",
+      "CLIENT_ERROR"
+    ],
+    "project-name": [
+      "demo5"
+    ]
+  }  
+}

@@ -1,3 +1,5 @@
+# This role will allow CodeBuild to access S3 and put artifact, pull code from CodeCommit and put logs in cloudwatch.
+
 Resources:
   CodeBuildRole:
     Type: "AWS::IAM::Role"
@@ -24,6 +26,7 @@ Resources:
                   - "codecommit:GitPull"
                 Resource:
                   - Fn::Sub: arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${ApplicationRepoName}
+                  # "arn:aws:codecommit:us-east-2:788210522308:ccdemo"
               - Effect: "Allow"
                 Action:
                   - "logs:CreateLogGroup"
@@ -31,6 +34,8 @@ Resources:
                   - "logs:PutLogEvents"
                 Resource:
                   - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+                  # "arn:aws:logs:us-east-2:788210522308:log-group:/aws/codebuild/ccdemo2"
+                  # "arn:aws:logs:us-east-2:788210522308:log-group:/aws/codebuild/*"
               - Effect: "Allow"
                 Action:
                   - "s3:PutObject"
@@ -39,6 +44,9 @@ Resources:
                   - "s3:ListBucket"
                 Resource:
                   - Fn::Sub: arn:aws:s3:::codepipeline-${AWS::Region}-*
-                  - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}/*
+                  # "arn:aws:s3:::codepipeline-us-east-2-*"
+                  - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}/* 
+                  # "arn:aws:s3:::artifact-tia/*"
                   - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}
+                  # "arn:aws:s3:::artifact-tia"
 

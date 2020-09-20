@@ -1,0 +1,35 @@
+       installwww:
+          packages:
+            yum:
+              httpd: []
+              php: []
+              php-mysql: []
+              php-pecl-memcached: []
+          services:
+            sysvinit:
+              httpd:
+                enabled: "true"
+                ensureRunning: "true"
+                files:
+                  - "/var/www/html"
+          commands:
+            01_install_composer:
+              cwd: "/home/ec2-user/phpapp"
+              command: !Sub |
+                chmod 777 /home/ec2-user/phpapp
+                chmod 777 `ls *.php` `ls *.png` `ls *.json`
+                export COMPOSER_HOME="/home/ec2-user/phpapp"
+                curl -sS https://getcomposer.org/installer | php
+                php composer.phar install
+                cp *.php /var/www/html/
+                cp -r vendor/ /var/www/html/
+                cp aws-icon.png /var/www/html/
+            02_access:
+              cwd: "/var/www/html"
+              command: "chmod 644 `ls *.php` `ls *.png`"
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: "S3"
+          buckets:
+            - <bucket-name>
+          roleName: !Ref IAMRoleEc2Access

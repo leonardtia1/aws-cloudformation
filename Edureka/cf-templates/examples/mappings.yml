@@ -26,3 +26,4 @@ Resources:
     Tags:
       - Key: Name
         Value: !Join ["-", [!Ref "AWS::StackName", "ec2Instance", "php", "app"]]
+    # stack1-ec2Instance-php-app

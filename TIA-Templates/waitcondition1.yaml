@@ -1,0 +1,27 @@
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-waitcondition.html
+
+WebServerGroup: 
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties: 
+    AvailabilityZones: 
+      Fn::GetAZs: ""
+    LaunchConfigurationName: 
+      Ref: "LaunchConfig"
+    MinSize: "1"
+    MaxSize: "5"
+    DesiredCapacity: 
+      Ref: "WebServerCapacity"
+    LoadBalancerNames: 
+      - 
+        Ref: "ElasticLoadBalancer"
+WaitHandle: 
+  Type: AWS::CloudFormation::WaitConditionHandle
+WaitCondition: 
+  Type: AWS::CloudFormation::WaitCondition
+  DependsOn: "WebServerGroup"
+  Properties: 
+    Handle: 
+      Ref: "WaitHandle"
+    Timeout: "300"
+    Count: 
+      Ref: "WebServerCapacity"

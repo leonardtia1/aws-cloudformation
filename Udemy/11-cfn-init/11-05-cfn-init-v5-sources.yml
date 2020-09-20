@@ -43,7 +43,8 @@ Resources:
               uid: "501"
               homeDir: "/home"                  
           sources:
-            /tmp: "https://s3.us-east-2.amazonaws.com/cfn-init-0189/cfn/demo1.zip"
+            #/tmp: "https://s3.us-east-2.amazonaws.com/cfn-init-0189/cfn/demo1.zip" 
+            /tmp: "https://artifacts-tia.s3.amazonaws.com/demo1.zip"
           files:
           commands:
           services:

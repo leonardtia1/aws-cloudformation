@@ -1,0 +1,90 @@
+# This role will allow CodeBuild to access S3 and put artifact, pull code from CodeCommit and put logs in cloudwatch.
+
+Resources:
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        Fn::Sub: CodeBuildRole-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: /service-role/
+      Policies:
+        - PolicyName: "CodeBuildCICDAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "codecommit:GitPull"
+                Resource:
+                  - Fn::Sub: arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${ApplicationRepoName}
+                  # arn:aws:codecommit:us-east-2:788210522308:ccdemo
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+                  # "arn:aws:logs:us-east-2:788210522308:log-group:/aws/codebuild/ccdemo2"
+              - Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:ListBucket"
+                Resource:
+                  - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}/* 
+                # Name of the repo which contains Rest Application.
+                # arn:aws:s3:::certifacations-tia/*
+
+# CODEBUILD THAT CREATE ON THE CONSOLE AUTOMATICALLY BY CODEBUILD
+Version: 2012-10-17
+Statement:
+  - Effect: Allow
+    Resource:
+      - 'arn:aws:logs:us-east-2:788210522308:log-group:/aws/codebuild/ccdemo2'
+      - 'arn:aws:logs:us-east-2:788210522308:log-group:/aws/codebuild/ccdemo2:*'
+    Action:
+      - 'logs:CreateLogGroup'
+      - 'logs:CreateLogStream'
+      - 'logs:PutLogEvents'
+  - Effect: Allow
+    Resource:
+      - 'arn:aws:s3:::codepipeline-us-east-2-*'
+    Action:
+      - 's3:PutObject'
+      - 's3:GetObject'
+      - 's3:GetObjectVersion'
+      - 's3:GetBucketAcl'
+      - 's3:GetBucketLocation'
+  - Effect: Allow
+    Resource:
+      - 'arn:aws:codecommit:us-east-2:788210522308:ccdemo'
+    Action:
+      - 'codecommit:GitPull'
+  - Effect: Allow
+    Resource:
+      - 'arn:aws:s3:::artifact-tia-ohio-us-east-2'
+      - 'arn:aws:s3:::artifact-tia-ohio-us-east-2/*'
+    Action:
+      - 's3:PutObject'
+      - 's3:GetBucketAcl'
+      - 's3:GetBucketLocation'
+  - Effect: Allow
+    Action:
+      - 'codebuild:CreateReportGroup'
+      - 'codebuild:CreateReport'
+      - 'codebuild:UpdateReport'
+      - 'codebuild:BatchPutTestCases'
+      - 'codebuild:BatchPutCodeCoverages'
+    Resource:
+      - 'arn:aws:codebuild:us-east-2:788210522308:report-group/ccdemo2-*'

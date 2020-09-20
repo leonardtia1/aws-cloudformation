@@ -6,7 +6,7 @@ Parameters:
   VpcBlock:
     Type: String
     Default: 10.0.0.0/16
-    Description: VPC CIDR Tange
+    Description: VPC CIDR Range
       
   Subnet01Block:
     Type: String
@@ -32,6 +32,7 @@ Resources:
       CidrBlock: !Ref VpcBlock
       EnableDnsHostnames: true
       EnableDnsSupport: true
+      InstanceTenancy: default
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-myVPC"

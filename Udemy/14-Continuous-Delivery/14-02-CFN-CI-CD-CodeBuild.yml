@@ -9,7 +9,7 @@ Parameters:
   ArtifactStoreS3Location:
     Type: String
     Description: Name of the S3 bucket to store CodePipeline artificat.
-    Default: rest-apps
+    Default: artifact-tia-ohio-us-east-2
 
 Resources:
   CodeBuildRole:
@@ -62,17 +62,18 @@ Resources:
       Description: Build war file for rest application
       ServiceRole: !GetAtt [ CodeBuildRole, Arn ]
       Artifacts:
-        Type: S3
-        Location: !Ref ArtifactStoreS3Location
-        Name: !Sub BuildRestAppCFN-${AWS::StackName}
+        Type: S3 # where to store the artifact
+        Location: !Ref ArtifactStoreS3Location # bucket name
+        Name: !Sub BuildRestAppCFN-${AWS::StackName} # artifact name
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:2.0
+        Image: aws/codebuild/standard:3.0
       Source:
         Location: !Sub https://git-codecommit.us-east-2.amazonaws.com/v1/repos/${ApplicationRepoName}
-        Type: CODECOMMIT
-      TimeoutInMinutes: 15
+        # https://git-codecommit.us-east-2.amazonaws.com/v1/repos/ccdemo
+        Type: CODECOMMIT # or S3
+      TimeoutInMinutes: 15 
       Tags:
         - Key: Name
           Value: !Sub BuildRestAppCFN-${AWS::StackName}

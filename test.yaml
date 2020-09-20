@@ -1,73 +1,79 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create CodeBuild Stack Template
 
-Description: >
-  The CreateProdResources condition evaluates to true if the EnvType parameter is equal to prod. In the sample template, the NewVolume and MountPoint resources are associated with the CreateProdResources condition. Therefore, the resources are created only if the EnvType parameter is equal to prod.
-
-Mappings: 
-  RegionMap: 
-    us-east-2: 
-      AMI: "ami-04fcd96153cb57194"
-      TestAz: "us-east-2a"
-    us-east-1: 
-      AMI: "ami-0ff8a91507f77f867"
-      TestAz: "us-east-1a"
-    us-west-1: 
-      AMI: "ami-0bdb828fd58c52235"
-      TestAz: "us-west-1a"
-    us-west-2: 
-      AMI: "ami-a0cfeed8"
-      TestAz: "us-west-2a"
-    eu-west-1: 
-      AMI: "ami-047bb4163c506cd98"
-      TestAz: "eu-west-1a"
-    sa-east-1: 
-      AMI: "ami-07b14488da8ea02a0"
-      TestAz: "sa-east-1a"
-    ap-southeast-1: 
-      AMI: "ami-08569b978cc4dfa10"
-      TestAz: "ap-southeast-1a"
-    ap-southeast-2: 
-      AMI: "ami-09b42976632b27e9b"
-      TestAz: "ap-southeast-2a"
-    ap-northeast-1: 
-      AMI: "ami-06cd52961ce9f0d85"
-      TestAz: "ap-northeast-1a"
-Parameters: 
-  EnvType: 
-    Description: Environment type.
-    Default: test
+Parameters:
+  ApplicationRepoName:
     Type: String
-    AllowedValues: 
-      - prod
-      - test
-    ConstraintDescription: must specify prod or test.
-Conditions: 
-  CreateProdResources: !Equals [ !Ref EnvType, prod ]
-Resources: 
-  EC2Instance: 
-    Type: "AWS::EC2::Instance"
-    Properties: 
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
-      InstanceType: t2.micro
-  
-  MountPoint: 
-    Type: "AWS::EC2::VolumeAttachment"
-    Condition: CreateProdResources
-    Properties: 
-      InstanceId: 
-        !Ref EC2Instance
-      VolumeId: 
-        !Ref NewVolume
-      Device: /dev/sdh
-  NewVolume: 
-    Type: "AWS::EC2::Volume"
-    Condition: CreateProdResources
-    Properties: 
-      Size: 15
-      AvailabilityZone: 
-        !GetAtt EC2Instance.AvailabilityZone
-Outputs: 
-  VolumeId: 
-    Condition: CreateProdResources
-    Value: 
-      !Ref NewVolume
+    Description: Name of the repo which contains Rest Application.
+    Default: ccdemo
+  ArtifactStoreS3Location:
+    Type: String
+    Description: Name of the S3 bucket to store CodePipeline artificat.
+    Default: artifact-tia-ohio-us-east-2
+
+Resources:
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        Fn::Sub: CodeBuildRole-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: /service-role/
+      Policies:
+        - PolicyName: "CodeBuildCICDAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "codecommit:GitPull"
+                Resource:
+                  - Fn::Sub: arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${ApplicationRepoName}
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+              - Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:ListBucket"
+                Resource:
+                  - Fn::Sub: arn:aws:s3:::codepipeline-${AWS::Region}-*
+                  - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}/*
+                  - Fn::Sub: arn:aws:s3:::${ArtifactStoreS3Location}
+
+  BuildRestAppCFNProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub BuildRestAppCFN-${AWS::StackName}
+      Description: Build war file for rest application
+      ServiceRole: !GetAtt [ CodeBuildRole, Arn ]
+      Artifacts:
+        Type: S3 
+        Location: !Ref ArtifactStoreS3Location 
+        Name: !Sub BuildRestAppCFN-${AWS::StackName}
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:3.0
+      Source:
+        Location: !Sub https://git-codecommit.us-east-2.amazonaws.com/v1/repos/${ApplicationRepoName}
+        # https://git-codecommit.us-east-2.amazonaws.com/v1/repos/ccdemo
+        Type: CODECOMMIT # or S3
+      TimeoutInMinutes: 15 
+      Tags:
+        - Key: Name
+          Value: !Sub BuildRestAppCFN-${AWS::StackName}

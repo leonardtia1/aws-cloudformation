@@ -1,4 +1,4 @@
-
+# Edit Trust Relationship
 Version: 2012-10-17
 Statement:
   - Effect: Allow
@@ -6,6 +6,7 @@ Statement:
       Service: ec2.amazonaws.com
     Action: 'sts:AssumeRole'
 
+# Permissions policies (1 policy applied)
 Version: 2012-10-17
 Statement:
   - Effect: Allow

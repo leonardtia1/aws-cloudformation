@@ -1,0 +1,141 @@
+Stack-Template:  
+Parameters:  
+  DecideEnvSize:  
+    Type: String  
+    Default: LOW  
+    AllowedValues:  
+      - LOW  
+      - MEDIUM  
+      - HIGH  
+    Description: Select Environment Size (S,M,L)  
+  DatabaseName:  
+    Type: String  
+    Default: DB4wordpress  
+  DatabaseUser:  
+    Type: String  
+    Default: ***************  
+  DatabasePassword:  
+    Type: String  
+    Default: *************  
+    NoEcho: true    
+  TestString:  
+    Type: String  
+    Default: Don't eat yourself up!!!  
+Mappings:  
+  MyRegionMap:  
+    us-east-1:  
+      "AMALINUX" : "ami-c481fad3" # AMALINUX SEP 2016 - N. Verginia  
+    us-east-2:  
+      "AMALINUX" : "ami-71ca9114" # AMALINUX SEP 2016 - Ohio  
+  InstanceSize:   
+    LOW:  
+      "EC2" : "t2.micro"  
+      "DB" : "db.t2.micro"  
+    MEDIUM:  
+      "EC2" : "t2.small"  
+      "DB" : "db.t2.small"  
+    HIGH:  
+      "EC2" : "t2.medium"  
+      "DB" : "db.t2.medium"  
+Resources:  
+  DBServer:  
+    Type: "AWS::RDS::DBInstance"  
+    Properties:  
+      AllocatedStorage: 5  
+      StorageType: gp2  
+      DBInstanceClass: !FindInMap [InstanceSize, !Ref DecideEnvSize, DB] # Dynamic mapping + Pseudo Parameter  
+      DBName: !Ref DatabaseName  
+      Engine: MySQL  
+      MasterUsername: !Ref DatabaseUser  
+      MasterUserPassword: !Ref DatabasePassword  
+    DeletionPolicy: Delete  
+  EC2server:  
+    Type: "AWS::EC2::Instance"  
+    DependsOn: DBServer  
+    Properties:  
+      ImageId: !FindInMap [MyRegionMap, !Ref "AWS::Region", AMALINUX] # Dynamic mapping + Pseudo Parameter  
+      InstanceType: !FindInMap [InstanceSize, !Ref DecideEnvSize, EC2]  
+      KeyName: AdvancedCFN  
+      _**UserData:  
+        "Fn::Base64":  
+          !Sub |  
+            #!/bin/bash  
+            yum update -y aws-cfn-bootstrap # good practice - always do this.  
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2server --configsets wordpress --region ${AWS::Region}  
+            yum -y update  
+    Metadata:  
+      AWS::CloudFormation::Init:  
+        configSets:  
+          wordpress:  
+            - "configure_cfn"  
+            - "install_wordpress"  
+            - "config_wordpress"  
+        configure_cfn:  
+          files:  
+            /etc/cfn/cfn-hup.conf:  
+              content: !Sub |  
+                [main-just some name]  
+                stack=${AWS::StackId}  
+                region=${AWS::Region}  
+                verbose=true  
+                interval=5  
+              mode: "000400"  
+              owner: root  
+              group: root  
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:  
+              content: !Sub |  
+                [cfn-auto-reloader-hook #just a name]  
+                triggers=post.update  
+                path=Resources.EC2server.Metadata.AWS::CloudFormation::Init  
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2server --configsets wordpress --region ${AWS::Region}  
+              mode: "000400"  
+              owner: root  
+              group: root  
+            /var/www/html/index2.html:  
+              content: !Ref TestString    
+          services:  
+            sysvinit:  
+              cfn-hup:  
+                enabled: "true"  
+                ensureRunning: "true"  
+                files:  
+                  - "/etc/cfn/cfn-hup.conf"  
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"**_  
+        install_wordpress:  
+          packages:  
+            yum:  
+              httpd: []  
+              php: []  
+              mysql: []  
+              php-mysql: []  
+          sources:  
+            /var/www/html: "http://wordpress.org/latest.tar.gz"  
+          services:  
+            sysvinit:  
+              httpd:  
+                enabled: "true"  
+                ensureRunning: "true"  
+        config_wordpress:  
+          commands:  
+            01_clone_config:  
+              cwd: "/var/www/html/wordpress"  
+              test: "test ! -e /var/www/html/wordpress/wp-config.php"  
+              command: "cp wp-config-sample.php wp-config.php"  
+            02_inject_dbhost:  
+              cwd: "/var/www/html/wordpress"  
+              command: !Sub |  
+                sed -i 's/localhost/${DBServer.Endpoint.Address}/g' wp-config.php  
+            03_inject_dbname:  
+              cwd: "/var/www/html/wordpress"  
+              command: !Sub |  
+                sed -i 's/database_name_here/${DatabaseName}/g' wp-config.php  
+            04_inject_dbuser:  
+              cwd: "/var/www/html/wordpress"  
+              command: !Sub |  
+                sed -i 's/username_here/${DatabaseUser}/g' wp-config.php  
+            05_inject_dbpassword:  
+              cwd: "/var/www/html/wordpress"  
+              command: !Sub |  
+                sed -i 's/password_here/${DatabasePassword}/g' wp-config.php    
+  S3blob:  
+    Type: "AWS::S3::Bucket"

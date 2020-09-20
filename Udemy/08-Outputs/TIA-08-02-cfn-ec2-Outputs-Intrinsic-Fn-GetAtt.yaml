@@ -1,3 +1,7 @@
+# CloudFormation Ref & GetAtt cheatsheet
+# https://theburningmonk.com/cloudformation-ref-and-getatt-cheatsheet/
+
+
 AWSTemplateFormatVersion: 2010-09-09
 Description: Outputs practice
 
