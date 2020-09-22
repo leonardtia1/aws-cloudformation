@@ -1,0 +1,438 @@
+
+.bs-slider{
+    overflow: hidden;
+    max-height: 700px;
+    position: relative;
+    background: #000000;
+}
+.bs-slider:hover {
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+.bs-slider:active {
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+.bs-slider .bs-slider-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .6);
+}
+.bs-slider > .carousel-inner > .item > img,
+.bs-slider > .carousel-inner > .item > a > img {
+    margin: auto;
+    width: 100% !important;
+}
+
+/********************
+*****Slide effect
+**********************/
+
+.fade {
+    opacity: 1;
+}
+.fade .item {
+    top: 0;
+    z-index: 1;
+    opacity: 0;
+    width: 100%;
+    position: absolute;
+    left: 0 !important;
+    display: block !important;
+    -webkit-transition: opacity ease-in-out 1s;
+    -moz-transition: opacity ease-in-out 1s;
+    -ms-transition: opacity ease-in-out 1s;
+    -o-transition: opacity ease-in-out 1s;
+    transition: opacity ease-in-out 1s;
+}
+.fade .item:first-child {
+    top: auto;
+    position: relative;
+}
+.fade .item.active {
+    opacity: 1;
+    z-index: 2;
+    -webkit-transition: opacity ease-in-out 1s;
+    -moz-transition: opacity ease-in-out 1s;
+    -ms-transition: opacity ease-in-out 1s;
+    -o-transition: opacity ease-in-out 1s;
+    transition: opacity ease-in-out 1s;
+}
+
+/*---------- LEFT/RIGHT ROUND CONTROL ----------*/
+.control-round .carousel-control {
+    top: 47%;
+    width: 52px;
+    height: 52px;
+    z-index: 100;
+    color: #ffffff;
+    display: block;
+    font-size: 24px;
+    cursor: pointer;
+    overflow: hidden;
+    line-height: 52px;
+    text-shadow: none;
+    position: absolute;
+    font-weight: normal;
+    border-radius: 100px;
+}
+.control-round .carousel-control svg {
+    fill: #ccc;
+    height: 35px;
+}
+.control-round:hover .carousel-control{
+    opacity: 1;
+}
+.control-round .carousel-control.left {
+    left: 2%;
+}
+.control-round .carousel-control.right {
+    right: 2%;
+}
+.control-round .carousel-control.left:hover, 
+.control-round .carousel-control.right:hover {
+    /*background-color: #ffff00;*/
+    color: #ffff00;
+    /*background: #1cbbb4;*/
+    /*border: 0px transparent;
+    background-image: linear-gradient(to right, #1cbbb4, #00bff3);*/
+}
+.control-round .carousel-control.left>span:nth-child(1){
+    left: 45%;
+}
+.control-round .carousel-control.right>span:nth-child(1){
+    right: 45%;
+}
+
+
+
+
+
+/*---------- INDICATORS CONTROL ----------*/
+.indicators-line > .carousel-indicators{
+    /*right: 45%;
+    bottom: 3%;
+    left: auto;
+    width: 90%;
+    height: 20px;
+    font-size: 0;
+    overflow-x: auto;
+    text-align: right;
+    overflow-y: hidden;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 1px;
+    white-space: nowrap;*/
+}
+.carousel-indicators {
+    position: absolute;
+    left: 0;
+    z-index: 15;
+    padding-left: 0;
+    text-align: center;
+    list-style: none;
+    width: 100%;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.indicators-line > .carousel-indicators li {
+    padding: 0;
+    width: 15px;
+    height: 15px;
+    text-indent: 0;
+    overflow: hidden;
+    text-align: left;
+    position: relative;
+    letter-spacing: 1px;
+    background: rgba(175, 182, 182, .66);
+    -webkit-font-smoothing: antialiased;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    margin-right: 5px;
+    -webkit-transition: all 0.5s cubic-bezier(0.22,0.81,0.01,0.99);
+    transition: all 0.5s cubic-bezier(0.22,0.81,0.01,0.99);
+    z-index: 10;
+    cursor: pointer;
+    border: 0;
+}
+.indicators-line > .carousel-indicators li:last-child{
+    margin-right: 0;
+}
+.indicators-line > .carousel-indicators .active {
+    margin: 1px 5px 1px 1px;
+    /* box-shadow: 0 0 0 2px #fff; */
+    background-color: #0558AB;
+    position: relative;
+    -webkit-transition: box-shadow 0.3s ease;
+    -moz-transition: box-shadow 0.3s ease;
+    -o-transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
+    -webkit-transition: background-color 0.3s ease;
+    -moz-transition: background-color 0.3s ease;
+    -o-transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease;
+    height: 24px;
+    width: 24px;
+    border: 4px solid #fff;
+}
+/*.indicators-line > .carousel-indicators .active:before{
+    transform: scale(0.5);
+    background-color: #fff;
+    content:"";
+    position: absolute;
+    left:-1px;
+    top:-1px;
+    width:15px;
+    height: 15px;
+    border-radius: 50%;
+    -webkit-transition: background-color 0.3s ease;
+    -moz-transition: background-color 0.3s ease;
+    -o-transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease;
+}*/
+
+/*---------- SLIDE CAPTION ----------*/
+.slide_style_left {
+    text-align: left !important;
+}
+.slide_style_right {
+    text-align: right !important;
+}
+.slide_style_center {
+    text-align: center !important;
+}
+.slide-text {
+    right: 0;
+    left: 50%;
+    top: 40%;
+    width: 100%;
+    position: absolute;
+    padding: 10px 130px;
+    transform: translate(-50%, -50%);
+}
+.slide-text > h1 {
+    padding: 0;
+    color: #ffffff;
+    font-style: normal;
+    margin-bottom: 30px;
+    /* display: inline-block; */
+    -webkit-animation-delay: 0.7s;
+    animation-delay: 0.7s;
+    text-shadow: 0 1px 0px #000;
+    letter-spacing: -1px;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 45px;
+    margin: 0;
+    position: relative;
+}
+.slide-text > h1 .title-shape {
+    background-color: #fff;
+    height: 86px;
+    width: 16px;
+    display: block;
+    position: absolute;
+    left: -21px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+}
+.slide-text > h1 .title-shape:after {
+    content: '';
+    background-color: #F95F5F;
+    height: 35px;
+    width: 35px;
+    left: -9px;
+    top: 12px;
+    position: absolute;
+    border-radius: 50%;
+}
+
+
+.slide-text > h1 > em {
+    font-family: 'Playfair Display', serif;
+    font-weight: 100;
+    letter-spacing: 0px;
+    font-style: normal;
+    color: #01DFD7;
+    font-style: italic;
+    font-weight: 600;
+}
+.slide-text > div {
+    padding: 0;
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    margin-bottom: 0;
+    letter-spacing: 1px;
+    -webkit-animation-delay: 1.1s;
+    animation-delay: 1.1s;
+    background-color: rgba(5, 50, 171, 0.5);
+    padding: 15px 30px;
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+}
+@media(max-width: 767px){
+    .slide-text > div {
+        font-size: 13px;
+        padding: 7px 15px;
+    }
+}
+.slide-text > p {
+    padding: 0;
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 30px;
+    font-weight: 300;
+    margin-bottom: 0;
+    letter-spacing: 1px;
+    -webkit-animation-delay: 1.1s;
+    animation-delay: 1.1s;
+}
+.slide-text > a.btn-default {
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 15px;
+    margin-right: 10px;
+    text-align: center;
+    padding: 16px 30px;
+    white-space: nowrap;
+    letter-spacing: 1px;
+    /* display: inline-block; */
+    border: none;
+    text-transform: capitalize;
+    -webkit-animation-delay: 2s;
+    animation-delay: 2s;
+    -webkit-transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    background: #F95F5F;
+    border-radius: 25px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+}
+.slide-text > a.btn-default svg {
+    fill: #fff;
+    height: 18px;
+    margin-left: 8px;
+}
+
+.slide-text > a.btn-default:hover{
+    /*    background-image: linear-gradient(to right, #1cbbb4, #00bff3);
+        box-shadow: 0px 10px 30px 0px rgba(28,187,180,0.5);*/
+}
+.slide-text > a.btn-primary{
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 15px;
+    margin-left: 10px;
+    text-align: center;
+    padding: 17px 30px;
+    white-space: nowrap;
+    letter-spacing: 1px;
+    background: #00bfff;
+    display: inline-block;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: none;
+    -webkit-animation-delay: 2s;
+    animation-delay: 2s;
+    -webkit-transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+.slide-text > a:hover,
+.slide-text > a:active {
+    color: #ffffff;
+    background: #ca4242;
+    -webkit-transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+    transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+}
+
+
+
+
+
+
+/*------------------------------------------------------*/
+/* RESPONSIVE
+/*------------------------------------------------------*/
+
+@media (max-width: 991px) {
+    .slide-text h1 {
+        font-size: 40px;
+        line-height: 50px;
+        margin-bottom: 20px;
+    }
+    .slide-text > p {
+        font-size: 18px;
+    }
+}
+
+
+/*---------- MEDIA 480px ----------*/
+@media  (max-width: 768px) {
+    .slide-text {
+        padding: 10px 50px;
+    }
+    .slide-text h1 {
+        font-size: 30px;
+        line-height: 40px;
+        margin-bottom: 10px;
+    }
+    .slide-text > p {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 20px;
+    }
+    .control-round .carousel-control{
+        display: none;
+    }
+
+}
+@media  (max-width: 480px) {
+    .slide-text {
+        top: 52%;
+        padding: 10px 30px;
+    }
+    .slide-text h1 {
+        font-size: 20px;
+        line-height: 25px;
+        margin-bottom: 10px !important;
+    }
+    .slide-text > h1 .title-shape {
+        height: 50px;
+        width: 6px;
+        left: -12px;
+    }
+    .slide-text > h1 .title-shape:after {
+        height: 15px;
+        width: 15px;
+        left: -4px;
+    }
+    .slide-text > p {
+        font-size: 12px;
+        line-height: 18px;
+        margin-bottom: 10px;
+    }
+    .slide-text > a.btn-default, 
+    .slide-text > a.btn-primary {
+        font-size: 10px;
+        line-height: 10px;
+        margin-right: 10px;
+        text-align: center;
+        padding: 10px 15px;
+    }
+    .indicators-line > .carousel-indicators{
+        display: none;
+    }
+
+}

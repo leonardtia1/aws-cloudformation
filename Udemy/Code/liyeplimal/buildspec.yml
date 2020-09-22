@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Nothing to do in the install phase...
+  pre_build:
+    commands:
+      - echo Nothing to do in the pre_build phase...
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Static website... copying files...
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - '**/*' # this will package all files and folders in liyeplimal into a zip that will be used by code deploy to deploy the application 
+    # if we package all files and folders, the deployment will fails because the appspec.yaml will not be in the zip file.
