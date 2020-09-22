@@ -4,7 +4,7 @@ os: linux
 files:
   - source: target/ccdemo.war
     destination: /usr/share/tomcat8/webapps/
-hooks:
+hooks: # these are deployment life cycle event
   BeforeInstall:
     - location: scripts/before_install.sh
       timeout: 300

@@ -10,7 +10,7 @@ Parameters:
   ArtifactStoreS3Location:
     Type: String
     Description: Name of the S3 bucket to store CodePipeline artificat.
-    Default: rest-apps
+    Default: artifact-tia-ohio-us-east-2
 
 Resources:
   CodeBuildRole:
@@ -70,7 +70,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:2.0
+        Image: aws/codebuild/standard:3.0
       Source:
         Location: !Sub https://git-codecommit.us-east-2.amazonaws.com/v1/repos/${ApplicationRepoName}
         Type: CODECOMMIT
@@ -121,9 +121,11 @@ Resources:
     Type: AWS::CodeDeploy::DeploymentGroup
     Properties: 
       ApplicationName: !Ref CodeDeployApplication
+      # the deployment group beonug to code deploy application
       Ec2TagFilters: 
-        - Key: Name
-          Value: dev
+        - Key: Name # This is the name of key giving while creating the EC2
+          Value: dev # this the value
           Type: "KEY_AND_VALUE"
-      ServiceRoleArn: !GetAtt [ CodeDeployServiceRole, Arn ]      
+      ServiceRoleArn: !GetAtt [ CodeDeployServiceRole, Arn ]     
+      # OR  ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentGroupName: !Sub DeploymentGroup-${AWS::StackName}

@@ -10,7 +10,7 @@ Parameters:
   ArtifactStoreS3Location:
     Type: String
     Description: Name of the S3 bucket to store CodePipeline artificat.
-    Default: rest-apps
+    Default: artifact-tia-ohio-us-east-2
 
 Resources:
   CodeBuildRole:

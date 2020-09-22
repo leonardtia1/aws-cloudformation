@@ -1,4 +1,3 @@
-
 Resources: 
   CodeDeployServiceRole:
     Type: 'AWS::IAM::Role'
